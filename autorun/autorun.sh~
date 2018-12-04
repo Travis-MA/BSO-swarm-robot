@@ -1,0 +1,80 @@
+#!/bin/bash
+picturePath="/home/kurt/桌面/天鹅集群算法/Simulation/0.40/9/"
+mainPath="/home/kurt/PlayerStage/stage/Stage-4.1.1/swan/"
+echo "Autorun Starts!"
+echo "[10%]start"
+cd ${mainPath}
+./main42a
+echo "[10%]completed"
+cd ${mainPath}
+./getpose 1
+
+echo "[20%]start"
+cd ${mainPath}
+./main42a
+echo "[20%]completed"
+cd ${mainPath}
+./getpose 2
+
+echo "[30%]start"
+cd ${mainPath}
+./main42a
+echo "[30%]completed"
+cd ${mainPath}
+./getpose 3
+
+echo "[40%]start"
+cd ${mainPath}
+./main42a
+echo "[40%]completed"
+cd ${mainPath}
+./getpose 4
+
+echo "[50%]start"
+cd ${mainPath}
+./main42a
+echo "[50%]completed"
+cd ${mainPath}
+./getpose 5
+
+echo "[60%]start"
+cd ${mainPath}
+./main42a
+echo "[60%]completed"
+cd ${mainPath}
+./getpose 6
+
+echo "[70%]start"
+cd ${mainPath}
+./main42a
+echo "[70%]completed"
+cd ${mainPath}
+./getpose 7
+
+echo "[80%]start"
+cd ${mainPath}
+./main42a
+echo "[80%]completed"
+cd ${mainPath}
+./getpose 8
+
+echo "[90%]start"
+cd ${mainPath}
+./main42a
+echo "[90%]completed"
+cd ${mainPath}
+./getpose 9
+
+echo "[100%]start"
+cd ${mainPath}
+./main42a
+echo "[100%]completed"
+cd ${mainPath}
+./getpose 10
+
+
+
+
+
+
+
