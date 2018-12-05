@@ -26,12 +26,15 @@
 #define ALPHA 0.05 // the weight of heading in evaluation 0.05
 #define BETA 0.2 // the weight of dist in evaluation 0.2 
 #define GAMMA 0.1  // the weight of velocity in evaluation 0.1
-#define ETA 0.1 // the weight of swarm behavior in evaluation 0.1
+#define ETA_default 0.1 // the weight of swarm behavior in evaluation 0.1
 #define DIST_PARA 100 // the predefined dist value for no obstcale situation
 #define TIME_GRAIN 0.1  // time interval size
 #define LASER_RANGE 4 // laser probe reach
 #define FLOOR_RANGE 8 // floor side reach
 #define SWARM_SIZE 42 // number of robots
+
+
+double eta_space[SWARM_SIZE];
 
 // Cartesian coordinates and Eular: yaw pitch roll
 struct location
@@ -121,18 +124,19 @@ vector<robot_loc_t> trajectory_calculation(double X_speed, double W_speed, doubl
  * determine the anarchism-authoritism  distance away from all neighbors
  **/
 double follow_neighbour(double x_end, double y_end,\
-                        FiducialProxy &neighborFinder, int iD)
-{     double total_dist_to_neighbor = 1.0;
-      for(int i =0; i< neighborFinder.GetCount(); i++){
+                        FiducialProxy &neighborFinder, int iD){     
+	  
+	  double total_dist_to_neighbor = 1.0;
+      for(int i =0; i< neighborFinder.GetCount(); i++)
+	  {
             double x_dist = neighborFinder.GetFiducialItem(i).pose.px - x_end;
             double y_dist = neighborFinder.GetFiducialItem(i).pose.py - y_end;
 // Assume Hawk is faster than Swan, and Swan is faster than Sparrow, we have:
 //            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist+y_dist*y_dist*y_dist*y_dist)/abs(x_dist*y_dist); // Hawk Finsler distance
-            if (iD >= SWARM_SIZE/7)
-              total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist+y_dist*y_dist*y_dist*y_dist-x_dist*y_dist*x_dist*y_dist)/2; // Accurate Swan Finsler distance
-            else
- total_dist_to_neighbor = total_dist_to_neighbor + pow(abs(x_dist*x_dist*x_dist-x_dist*x_dist*y_dist+x_dist*y_dist*y_dist-y_dist*y_dist*y_dist),2/3)/(6/3)/2; // Accurate Sparrow Finsler distance
-      }
+			
+			total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist + y_dist * y_dist*y_dist*y_dist - x_dist * y_dist*x_dist*y_dist) / 2; // Accurate Swan Finsler distance
+			
+	  }
       return total_dist_to_neighbor;
 }
 
@@ -140,8 +144,8 @@ double follow_neighbour(double x_end, double y_end,\
 void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,\
                               RangerProxy &laser,vector<int> obstcale_locs,\
                               Position2dProxy &p2d,\
-                              FiducialProxy &neighborFinder, int iD)
-{// the sampling window size and settings
+                              FiducialProxy &neighborFinder, int iD){// the sampling window size and settings
+
       int W_windowSize = (int)((W_MAX-W_MIN)/W_SAMPLE_GRAIN);
       int X_windowSize = (int)((X_MAX-X_MIN)/X_SAMPLE_GRAIN);
       vector<double> Ws(W_windowSize);
@@ -159,20 +163,24 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
       double optimal_x_speed = *X_speed;
       double optimal_w_speed = *W_speed;
       // printf("\nwindow size: (%d, %d)\n",W_windowSize, X_windowSize);
-      // generating all possible v and w
-      for(int i=0;i<W_windowSize; i++){
+      // generating all possible v andw
+      for(int i=0;i<W_windowSize; i++)
+	  {
             Ws[i]= W_MIN + i*W_SAMPLE_GRAIN;
       } 
-      for(int j=0;j<X_windowSize; j++){
+      for(int j=0;j<X_windowSize; j++)
+	  {
             Xs[j]= X_MIN + j*X_SAMPLE_GRAIN;
       }
       // evaluating all possible v and w
-      for(int i=0;i<W_windowSize;i++){
+      for(int i=0;i<W_windowSize;i++)
+	  {
             dists[i]= vector<double>(X_windowSize);
             headings[i] = vector<double>(X_windowSize);
             velocitys[i] = vector<double>(X_windowSize);
             swarm_behavior_eva[i] = vector<double>(X_windowSize);
-            for(int j=0;j<X_windowSize;j++){
+            for(int j=0;j<X_windowSize;j++)
+			{
                   // first generate the trajectory
                   double xx_end = 0.0;
                   double yy_end = 0.0;
@@ -181,19 +189,24 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
                   trajectory = trajectory_calculation(Xs[j], Ws[i], &xx_end, &yy_end, &yaw_end, time_window);
                   double dist_ = DIST_PARA;
                   // distance calculation
-                  for(int k=0;k<obstcale_locs.size();k++){
+                  for(int k=0;k<obstcale_locs.size();k++)
+				  {
                         double dist_temp = dist_evaluation(xx_end, yy_end, laser, obstcale_locs[k]);
-                        if(dist_>dist_temp){
+                        if(dist_>dist_temp)
+						{
                             dist_ =  dist_temp;
                         }
                   }
-                  if(dist_>10*OBSTACLE_R){
+                  if(dist_>10*OBSTACLE_R)
+				  {
                         dist_ = 10*OBSTACLE_R;        // change 2 to 10
                   }
-                  if(dist_>1*OBSTACLE_R){
+                  if(dist_>1*OBSTACLE_R)
+				  {
                         dists[i][j] = dist_;
                         total_dist = total_dist + dist_;
-                  }else{
+                  }
+				  else {
                         dists[i][j] = -1;
                   }
                   // heading calculation
@@ -211,15 +224,19 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
       }
       // printf("\ntotal head: %f\n", total_heading);
       // find maximum evaluation
-      for(int i=0;i<W_windowSize;i++){
+      for(int i=0;i<W_windowSize;i++)
+	  {
             Evalu[i] = vector<double>(X_windowSize);
-            for(int j=0;j<X_windowSize;j++){
+            for(int j=0;j<X_windowSize;j++)
+			{
                   // do normalization to reduce outlier effects
                   Evalu[i][j] = ALPHA*(headings[i][j]/total_heading)+\
-                                    BETA*(dists[i][j]/total_dist)+\
-                                    GAMMA*(velocitys[i][j]/total_velocity)+\
-                                    ETA*(swarm_behavior_eva[i][j]/total_swarm_behavior_eva);
-                  if(Evalu[i][j]>optimal_eva&&dists[i][j]!=-1){
+                                BETA*(dists[i][j]/total_dist)+\
+                                GAMMA*(velocitys[i][j]/total_velocity)+\
+                                eta_space[ID-1]*(swarm_behavior_eva[i][j]/total_swarm_behavior_eva);
+
+                  if(Evalu[i][j]>optimal_eva&&dists[i][j]!=-1)
+				  {
                         optimal_eva = Evalu[i][j];
                         optimal_x_speed = Xs[j];
                         optimal_w_speed = Ws[i];
@@ -238,6 +255,13 @@ int main(int argc, char *argv[])
       /*need to do this line in c++ only*/
       using namespace PlayerCc;
 //===================================INITIALIZATION==================================================//
+
+	  for (int i = 0; i < SWARM_SIZE; i++) 
+	  {
+		  eta_space[i] = ETA_default;
+	  }
+
+
       PlayerClient    robot0("localhost", 7000);
       Position2dProxy p2dProxy_robot0(&robot0,0);
       RangerProxy      laserProxy_robot0(&robot0,0);
@@ -492,7 +516,8 @@ int main(int argc, char *argv[])
       vector<double> X_speeds(SWARM_SIZE);
       vector<double> W_speeds(SWARM_SIZE);
       // aiming each robots towards the goal
-      for(int i=0;i<SWARM_SIZE;i++){
+      for(int i=0;i<SWARM_SIZE;i++)
+	  {
             X_speeds[i] = 0.25;
             W_speeds[i] = (2.5-fmod(i,6))*0.0017*i/2.5; // roughly 3.1415926/180 for 42(6x7) swan only
             p2dProxys[i].SetMotorEnable(1);
@@ -500,7 +525,6 @@ int main(int argc, char *argv[])
             rngProxys[i].RequestGeom();
             fidProxys[i].RequestGeometry();
             rngProxys[i].RequestConfigure();
-
       }
       // randomize the wheel speed
       srand(time(NULL));
@@ -512,24 +536,28 @@ int main(int argc, char *argv[])
 //======================================LOOP=====================================================================
       while(true)
       {	
-	    for(int i = 0;i<SWARM_SIZE;i++){
-            // read from the proxies
-            // robot.Read();
-            plyclnts[i].Read();
-            vector<int> locs;
-            // Determine obstcales for each robot
-            locs = obstacle_detection(rngProxys[i], &current_min_dist);
-            DynamicWindowApproach(&X_speeds[i], &W_speeds[i], time_window, rngProxys[i], locs, p2dProxys[i], fidProxys[i], i);
-            p2dProxys[i].SetSpeed(X_speeds[i], dtor(W_speeds[i]));
-            // Stop when some at next destination
-            if ( p2dProxys[i].GetXPos()>FLOOR_RANGE*0.1)   
-		flag = flag+1;
-            // To make sure no queue overflow
-            sleep(time_window/SWARM_SIZE);
-            }
-            // More than Goldern 61.8% or Pareto 80% next step 10%
-            if (flag > SWARM_SIZE*0.1)
-            break;
-            // sleep(time_window/10);
+			for(int i = 0;i<SWARM_SIZE;i++){
+				// read from the proxies
+				// robot.Read();
+				plyclnts[i].Read();
+				vector<int> locs;
+				// Determine obstcales for each robot
+				locs = obstacle_detection(rngProxys[i], &current_min_dist);
+				DynamicWindowApproach(&X_speeds[i], &W_speeds[i], time_window, rngProxys[i], locs, p2dProxys[i], fidProxys[i], i);
+				p2dProxys[i].SetSpeed(X_speeds[i], dtor(W_speeds[i]));
+				// Stop when some at next destination
+				if (p2dProxys[i].GetXPos() > FLOOR_RANGE*0.1)
+				{
+					flag = flag + 1;
+				}
+				// To make sure no queue overflow
+				sleep(time_window/SWARM_SIZE);
+			}
+				// More than Goldern 61.8% or Pareto 80% next step 10%
+			if (flag > SWARM_SIZE*0.1)
+			{
+				break;
+				// sleep(time_window/10);
+			}
       }
 }
