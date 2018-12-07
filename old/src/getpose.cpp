@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
       //SimulationProxy simuProxys[SWARM_SIZE]={simProxy_robot1, simProxy_robot2, simProxy_robot3, simProxy_robot4, simProxy_robot5, simProxy_robot6, simProxy_robot7, simProxy_robot8, simProxy_robot9, simProxy_robot10, simProxy_robot11, simProxy_robot12, simProxy_robot13, simProxy_robot14, simProxy_robot15, simProxy_robot16, simProxy_robot17, simProxy_robot18, simProxy_robot19, simProxy_robot20, simProxy_robot21, simProxy_robot22, simProxy_robot23, simProxy_robot24, simProxy_robot25, simProxy_robot26, simProxy_robot27, simProxy_robot28, simProxy_robot29, simProxy_robot30, simProxy_robot31, simProxy_robot32, simProxy_robot33, simProxy_robot34, simProxy_robot35, simProxy_robot36, simProxy_robot37, simProxy_robot38, simProxy_robot39, simProxy_robot40, simProxy_robot41};
       
       cout << atoi(argv[1]) << endl;
-      int one = 1;
-      if(atoi(argv[1]) == one){
+
+      if(atoi(argv[1]) == 1){
             ofstream OutFile("Trade.txt");
             for(int i = 0;i<SWARM_SIZE;i++){
                   std::string pose =  std::to_string(i) + "\n"  + std::to_string(originPos[i][0]) + "\n" + std::to_string(originPos[i][1]) +"\n";
@@ -304,11 +304,9 @@ int main(int argc, char *argv[])
                   OutFile << pose;  
             }
             OutFile.close();  
-            
       }
       
-      int ten = 10;
-      if(atoi(argv[1]) == ten){
+      if(atoi(argv[1]) == 10){
             fstream file("Trade.txt", ios::out);
             double x;
             double y;
@@ -330,10 +328,9 @@ int main(int argc, char *argv[])
                   //cout << "id: " << i <<" delta x :" << delta_x << " delta y: " << delta_y <<endl;
                   //cout << "id: " << i <<" x :" << x << " y: " << y <<endl;
                   
-                  outFile  << x << ',' << y <<endl;
-                  
+                  outFile  << x << ',' << y <<endl;   
             }
-
+            /*
             sort(xval,xval+SWARM_SIZE);
             sort(yval,yval+SWARM_SIZE);
             xmax = xval[SWARM_SIZE-1];
