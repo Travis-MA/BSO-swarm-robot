@@ -22,15 +22,19 @@ for i = 1 : dim
     for jy = 1 : length(t1)-1
         xt = [x(t1(jy)) x(t1(jy+1))];
         yt = [y(t1(jy)) y(t1(jy+1))];
-        plot(xt, yt, 'k-', 'LineWidth', 1);
+        %plot(xt, yt, 'k-', 'LineWidth', 1);
         plot(x(t1(jy)), y(t1(jy)), 'ro', 'LineWidth', 2);
     end
     plot(x(t1(length(t1))), y(t1(length(t1))), 'ro', 'LineWidth', 2);
     xt = [x(t1(end)) x(t1(1))];
     yt = [y(t1(end)) y(t1(1))];
-    plot(xt, yt, 'k-', 'LineWidth', 1);
+    %plot(xt, yt, 'k-', 'LineWidth', 1);
+    
     
 end
+idx = 1 : length(x);
+str_idx=num2str(idx(:));
+text(x+0.5, y+0.5, str_idx);
 
 %% Evaluate the uniformity coefficient
 
@@ -52,28 +56,32 @@ y_min = min(y);
 x_max = max(x);
 x_min = min(x);
 
-cluster = zeros(10);
-cluster_id = 1;
+cluster = {} ;
+clu_id = 1;
 x_div = 5; 
 y_div = 2;
 x_step = (x_max - x_min) / x_div;
 y_step = (y_max - y_min) / y_div;
+%clu_x_dev = [];
+%clu_y_dev = [];
 for ix = 0 : x_div - 1
     for jy = 0 : y_div - 1
+        %clu_x_dev = [clu_x_dev, x_min + (ix + 1) * x_step];
+        %clu_y_dev = [clu_y_dev, y_min + (jy + 1) * y_step];
+        now_clu = [];
         for iid = 1 : length(x)
-            if(x(iid) > x_min + ix * x_step && x(iid) < x_min + ix * x_step + x_step)
-                if(y(iid) > y_min + jy * y_step && y(iid) < y_min + jy * y_step + y_step)
-                    cluster(1) = [cluster(1), iid];
+            if(x(iid) >= x_min + ix * x_step && x(iid) < x_min + (ix + 1) * x_step + 0.00001)
+                if(y(iid) >= y_min + jy * y_step && y(iid) < y_min + (jy + 1) * y_step + 0.00001)
+                    now_clu = [now_clu, iid];
+                    cluster{clu_id} = now_clu;
                 end
             end
-        end
-        
-        cluster_id = cluster_id + 1;
+        end       
+        clu_id = clu_id + 1;
     end
 end
-
-
-
+celldisp(cluster);
+%save('cluster.txt', 'cluster');
 
 
 
