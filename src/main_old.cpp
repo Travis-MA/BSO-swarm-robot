@@ -26,7 +26,7 @@
 #define ALPHA 0.05 // the weight of heading in evaluation 0.05
 #define BETA 0.2 // the weight of dist in evaluation 0.2 
 #define GAMMA 0.1  // the weight of velocity in evaluation 0.1
-#define ETA 0.1 // the weight of swarm behavior in evaluation 0.1
+#define ETA 0.4 // the weight of swarm behavior in evaluation 0.1
 #define DIST_PARA 100 // the predefined dist value for no obstcale situation
 #define TIME_GRAIN 0.1  // time interval size
 #define LASER_RANGE 4 // laser probe reach
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
       Position2dProxy p2dProxy_robot0(&robot0,0);
       RangerProxy      laserProxy_robot0(&robot0,0);
       FiducialProxy neighbor_finderProxy_robot0(&robot0,0);
-      // SimulationProxy simProxy_robot0(&robot0,0);
+      //SimulationProxy simProxy_robot0(&robot0,0);
 
       PlayerClient    robot1("localhost", 7001);
       Position2dProxy p2dProxy_robot1(&robot1,0);
