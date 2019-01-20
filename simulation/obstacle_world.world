@@ -1,0 +1,433 @@
+# .world file for configuring the Stage simulator 
+# Authors: Siqing MA, Ce MA, Jun Steed HUANG, 2018
+# This is a world containing multiple robots and a set of obstacles like headwind
+# The goal is for majority robots move against wind faster by team formation
+include "map.inc"
+include "robot.inc"
+
+# windowGUI adjustment
+window
+( 
+   size [1247 700] 
+   scale 13.494
+)
+
+floorplan
+(   
+    bitmap "bitmaps/goal_map.png"
+    #bitmap "bitmaps/rink.png"
+    size [15.000 15.000 1.500]
+)
+
+
+
+# define robot one by one, should be automated by a loop or a shell script
+robot
+(
+    name "robot0"
+    pose [3.000 -1.843 0.000 0.000]
+    color "blue"
+    fiducial_return 1
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot1"
+    pose [3.000 -1.129 0.000 0.000]
+    color "blue"
+    fiducial_return 2
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot2"
+    pose [3.000 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 3
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot3"
+    pose [3.000 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 4
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot4"
+    pose [3.000 1.014 0.000 0.000]
+    color "blue"
+    fiducial_return 5
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot5"
+    pose [3.000 1.729 0.000 0.000]
+    color "blue"
+    fiducial_return 6
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot6"
+    pose [2.286 -1.843 0.000 0.000]
+    color "red"
+    fiducial_return 7
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot7"
+    pose [2.286 -1.129 0.000 0.000]
+    color "red"
+    fiducial_return 8
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot8"
+    pose [2.286 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 9
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot9"
+    pose [2.286 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 10
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot10"
+    pose [2.286 1.014 0.000 0.000]
+    color "red"
+    fiducial_return 11
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot11"
+    pose [2.286 1.729 0.000 0.000]
+    color "red"
+    fiducial_return 12
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot12"
+    pose [1.572 -1.843 0.000 0.000]
+    color "red"
+    fiducial_return 13
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot13"
+    pose [1.572 -1.129 0.000 0.000]
+    color "red"
+    fiducial_return 14
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot14"
+    pose [1.572 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 15
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot15"
+    pose [1.572 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 16
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot16"
+    pose [1.572 1.014 0.000 0.000]
+    color "red"
+    fiducial_return 17
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot17"
+    pose [1.572 1.729 0.000 0.000]
+    color "red"
+    fiducial_return 18
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot18"
+    pose [0.858 -1.843 0.000 0.000]
+    color "red"
+    fiducial_return 19
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot19"
+    pose [0.858 -1.129 0.000 0.000]
+    color "red"
+    fiducial_return 20
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot20"
+    pose [0.858 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 21
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot21"
+    pose [0.858 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 22
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot22"
+    pose [0.858 1.014 0.000 0.000]
+    color "red"
+    fiducial_return 23
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot23"
+    pose [0.858 1.729 0.000 0.000]
+    color "red"
+    fiducial_return 24
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot24"
+    pose [0.143 -1.843 0.000 0.000]
+    color "red"
+    fiducial_return 25
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot25"
+    pose [0.143 -1.129 0.000 0.000]
+    color "red"
+    fiducial_return 26
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot26"
+    pose [0.143 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 27
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot27"
+    pose [0.143 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 28
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot28"
+    pose [0.143 1.014 0.000 0.000]
+    color "red"
+    fiducial_return 29
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot29"
+    pose [0.143 1.729 0.000 0.000]
+    color "red"
+    fiducial_return 30
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot30"
+    pose [-0.571 -1.843 0.000 0.000]
+    color "red"
+    fiducial_return 31
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot31"
+    pose [-0.571 -1.129 0.000 0.000]
+    color "red"
+    fiducial_return 32
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot32"
+    pose [-0.571 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 33
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot33"
+    pose [-0.571 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 34
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot34"
+    pose [-0.571 1.014 0.000 0.000]
+    color "red"
+    fiducial_return 35
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot35"
+    pose [-0.571 1.729 0.000 0.000]
+    color "red"
+    fiducial_return 36
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot36"
+    pose [-1.286 -1.843 0.000 0.000]
+    color "red"
+    fiducial_return 37
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot37"
+    pose [-1.286 -1.129 0.000 0.000]
+    color "red"
+    fiducial_return 38
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot38"
+    pose [-1.286 -0.414 0.000 0.000]
+    color "cyan"
+    fiducial_return 39
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot39"
+    pose [-1.286 0.300 0.000 0.000]
+    color "green"
+    fiducial_return 40
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot40"
+    pose [-1.286 1.014 0.000 0.000]
+    color "red"
+    fiducial_return 41
+    ranger_return -1.000
+    obstacle_return 0
+)
+robot
+(
+    name "robot41"
+    pose [-1.286 1.729 0.000 0.000]
+    color "red"
+    fiducial_return 42
+    ranger_return -1.000
+    obstacle_return 0
+)
+
+
+
+# this is the head wind drag 
+define obstcale_b model
+(   
+   #bitmap "bitmaps/circle.png"
+   bitmap "bitmaps/rink.png"
+    gui_nose 0
+    gui_grid 0
+    gui_move 0
+    gui_outline 0
+    gripper_return 0
+    fiducial_return 0
+    ranger_return 2.000
+	size [0.250 0.250 1.500]
+	color "orange"
+)
+
+# distributed with 0.618 ratio
+obstcale_b(pose [7.900 -6.210 0.000 0.000]) 
+obstcale_b(pose [8.300 -5.370 0.000 0.000]) 
+obstcale_b(pose [9.000 -4.000 0.000 0.000])  
+obstcale_b(pose [10.100 -1.790 0.000 0.000])   
+obstcale_b(pose [10.100 1.790 0.000 0.000])
+obstcale_b(pose [9.000 4.000 0.000 0.000])
+obstcale_b(pose [8.300 5.370 0.000 0.000])
+obstcale_b(pose [7.900 6.210 0.000 0.000])
+
+# The end.
+
