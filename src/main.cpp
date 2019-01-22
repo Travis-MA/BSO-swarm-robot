@@ -133,7 +133,7 @@ vector<robot_loc_t> trajectory_calculation(double X_speed, double W_speed, doubl
 /**
  * determine the anarchism-authoritism  distance away from all neighbors
  **/
-double follow_neighbour(double x_end, double y_end, FiducialProxy &neighborFinder, int iD)
+double follow_neighbour(double x_end, double y_end, FiducialProxy &neighborFinder)
 {     
       double total_dist_to_neighbor = 1.0;
       for(int i =0; i< neighborFinder.GetCount(); i++)
@@ -223,7 +223,7 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
                   velocitys[i][j] = velocity_evaluation(Xs[j]);
                   total_velocity = total_velocity + velocitys[i][j];
                   // fixing the middle man
-                  swarm_behavior_eva[i][j] = follow_neighbour(xx_end, yy_end, neighborFinder, iD);
+                  swarm_behavior_eva[i][j] = follow_neighbour(xx_end, yy_end, neighborFinder);
                   total_swarm_behavior_eva = total_swarm_behavior_eva + swarm_behavior_eva[i][j];
                   //printf("swarm: %f\n",swarm_behavior_eva[i][j] ); // debug
             }
@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
                   DynamicWindowApproach(&X_speeds[i], &W_speeds[i], time_window, rngProxys[i], locs, p2dProxys[i], fidProxys[i], i);
                   p2dProxys[i].SetSpeed(X_speeds[i], dtor(W_speeds[i]));
                   // Stop when some at next destination
-                  if ( p2dProxys[i].GetXPos() > FLOOR_RANGE*0.1)
+                  if ( p2dProxys[i].GetXPos() > FLOOR_RANGE * 0.1)
                   {
                         flag = flag + 1;
                   }   
@@ -646,7 +646,7 @@ int main(int argc, char *argv[])
             }
 
             // More than Goldern 61.8% or Pareto 80% next step 10%
-            if (flag > SWARM_SIZE * 5)
+            if (flag > SWARM_SIZE * 0.1)
             {
                   ofstream outFile;
 	            outFile.open("reach.csv", ios::out);
