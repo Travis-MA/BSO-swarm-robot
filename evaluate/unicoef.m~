@@ -1,7 +1,7 @@
 clear;
 clc;
 
-Reach = csvread('reach.csv'); 
+Reach = csvread('test.csv'); 
 x = Reach(: , 1);
 y = Reach(: , 2);
 x(1)
@@ -63,21 +63,13 @@ var = std(peri)
 ratio = (x_max - x_min) / (y_max - y_min)
 a = sqrt(ratio * ratio + var * var)
 
-s = dir('tmp.csv');
-if s.bytes == 0
-     data = table(var, ratio, a);
-     writetable(data, 'tmp.csv', 'WriteVariableNames', false) 
-else
-    old = csvread('tmp.csv'); 
-    old_var = old(: , 1);
-    old_ratio = old(: , 2);
-    old_a = old(: , 3);
-    new_var = [old_var; var];
-    new_ratio = [old_ratio; ratio];
-    new_a = [old_a; a];
-    data = table(new_var, new_ratio, new_a);
-    writetable(data, 'tmp.csv', 'WriteVariableNames', false) 
-end
+old = csvread('tmp.csv'); 
+old_var = Reach(: , 1);
+old_ratio = Reach(: , 2);
+o
+data = table();
+writetable(data, 'tmp.csv') 
+
 
 
 % cluster = {} ;
