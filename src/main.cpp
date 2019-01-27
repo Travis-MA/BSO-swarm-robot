@@ -31,7 +31,7 @@
 #define ALPHA 0.05 // the weight of heading in evaluation 0.05
 #define BETA 0.2 // the weight of dist in evaluation 0.2 
 #define GAMMA 0.1  // the weight of velocity in evaluation 0.1
-#define ETA 0.0 // the weight of swarm behavior in evaluation 0.1
+#define ETA 0.0 // the weight of swarm behavior in evaluation 
 #define DIST_PARA 100 // the predefined dist value for no obstcale situation
 #define TIME_GRAIN 0.1  // time interval size
 #define LASER_RANGE 4 // laser probe reach
@@ -142,7 +142,7 @@ double follow_neighbour(double x_end, double y_end, FiducialProxy &neighborFinde
             double y_dist = neighborFinder.GetFiducialItem(i).pose.py - y_end;
 // Assume Hawk is faster than Swan, and Swan is faster than Sparrow, we have:
 //            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist+y_dist*y_dist*y_dist*y_dist)/abs(x_dist*y_dist); // Hawk Finsler distance
-            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist - y_dist*y_dist*y_dist - x_dist*x_dist*y_dist + x_dist*y_dist*y_dist); // Accurate Swan Finsler distance  
+            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(abs(x_dist*x_dist*x_dist - y_dist*y_dist*y_dist - x_dist*x_dist*y_dist + x_dist*y_dist*y_dist)); // Accurate Swan Finsler distance  
       }
       return total_dist_to_neighbor;
 }
@@ -648,9 +648,10 @@ int main(int argc, char *argv[])
             // More than Goldern 61.8% or Pareto 80% next step 10%
             if (flag > SWARM_SIZE * 0.1)
             {
+                  
                   ofstream outFile;
-	            outFile.open("reach.csv", ios::out);
-                  cout << "Break v1.1: " << endl;
+	            outFile.open("/home/kurt/桌面/BSO-swarm-robot/evaluate/reach.csv", ios::out);
+                  cout << "Break v1.3 19-1-27: " << endl;
                   for(int i = 0;i<SWARM_SIZE;i++){
                         plyclnts[i].Read();
                         //p2dProxys[i].SetSpeed(0,0);
