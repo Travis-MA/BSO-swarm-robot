@@ -1,0 +1,58 @@
+clear;
+clc;
+
+%% FetchData
+
+data_path = 'D:\Documents A\2018\BSO-swarm-robot\simulation\orig_test1\';
+
+p00 = csvread([data_path, '0.0.csv']); 
+p01 = csvread([data_path, '0.1.csv']); 
+p02 = csvread([data_path, '0.2.csv']); 
+p03 = csvread([data_path, '0.3.csv']); 
+p04 = csvread([data_path, '0.4.csv']); 
+p05 = csvread([data_path, '0.5.csv']); 
+p06 = csvread([data_path, '0.6.csv']); 
+p07 = csvread([data_path, '0.7.csv']); 
+p08 = csvread([data_path, '0.8.csv']); 
+p09 = csvread([data_path, '0.9.csv']);
+p10 = csvread([data_path, '1.0.csv']); 
+
+%% Delaunay triangulate coefficient
+
+dim = size(p00);
+for i = 1 : dim(2)/2-1
+    
+    % For every single ETA
+    x00 = p00(:, (i-1)*2 + 1); y00 = p00(:, (i-1)*2 + 2);
+    x01 = p01(:, (i-1)*2 + 1); y01 = p01(:, (i-1)*2 + 2);
+    x02 = p00(:, (i-1)*2 + 1); y02 = p02(:, (i-1)*2 + 2);
+    x03 = p00(:, (i-1)*2 + 1); y03 = p03(:, (i-1)*2 + 2);
+    x04 = p00(:, (i-1)*2 + 1); y04 = p04(:, (i-1)*2 + 2);
+    x05 = p00(:, (i-1)*2 + 1); y05 = p05(:, (i-1)*2 + 2);
+    x06 = p00(:, (i-1)*2 + 1); y06 = p06(:, (i-1)*2 + 2);
+    x07 = p00(:, (i-1)*2 + 1); y07 = p07(:, (i-1)*2 + 2);
+    x08 = p00(:, (i-1)*2 + 1); y08 = p08(:, (i-1)*2 + 2);
+    x09 = p00(:, (i-1)*2 + 1); y09 = p09(:, (i-1)*2 + 2);
+    x10 = p00(:, (i-1)*2 + 1); y10 = p10(:, (i-1)*2 + 2);
+
+    TRI00 = delaunay(x00,y00);
+    TRI00 = delaunay(x01,y01);
+    TRI00 = delaunay(x02,y02);
+    TRI00 = delaunay(x03,y03);
+    TRI00 = delaunay(x04,y04);
+    TRI00 = delaunay(x05,y05);
+    TRI00 = delaunay(x06,y06);
+    TRI00 = delaunay(x07,y07);
+    TRI00 = delaunay(x08,y08);
+    TRI00 = delaunay(x09,y09);
+    TRI00 = delaunay(x10,y10);
+    
+
+end
+
+    
+    
+    
+    
+    
+    
