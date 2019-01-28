@@ -3,7 +3,7 @@ clc;
 
 %% FetchData
 
-data_path = 'D:\Documents A\2018\BSO-swarm-robot\simulation\orig_test2\';
+data_path = 'D:\Documents A\2018\BSO-swarm-robot\simulation\orig_test1\';
 
 p00 = csvread([data_path, '0.0.csv']); 
 p01 = csvread([data_path, '0.1.csv']); 
