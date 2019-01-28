@@ -140,9 +140,7 @@ double follow_neighbour(double x_end, double y_end, FiducialProxy &neighborFinde
       {
             double x_dist = neighborFinder.GetFiducialItem(i).pose.px - x_end;
             double y_dist = neighborFinder.GetFiducialItem(i).pose.py - y_end;
-// Assume Hawk is faster than Swan, and Swan is faster than Sparrow, we have:
-//            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist+y_dist*y_dist*y_dist*y_dist)/abs(x_dist*y_dist); // Hawk Finsler distance
-            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(abs(x_dist*x_dist*x_dist - y_dist*y_dist*y_dist - x_dist*x_dist*y_dist + x_dist*y_dist*y_dist)); // Accurate Swan Finsler distance  
+            total_dist_to_neighbor = total_dist_to_neighbor + sqrt( pow(abs(x_dist), 3)) + pow(abs(y_dist), 3) + pow(abs(x_dist), 2) * abs(y_dist) + pow(abs(y_dist), 2) * abs(x_dist)); // Accurate Swan Finsler distance  
       }
       return total_dist_to_neighbor;
 }
