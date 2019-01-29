@@ -25,11 +25,17 @@ dim = size(p00);
 
 mat_var = [];
 mat_ratio = [];
+mat_unif = [];
+mat_disp_x  = [];
+mat_disp_y = [];
 for eta = 0 : 10
     
     % For every single percenet
     eta_var = [];
     eta_ratio = [];
+    eta_unif = [];
+    eta_disp_x = [];
+    eta_disp_y = [];
     for pct = 1 : dim(2)/2-1
         
         x = p(:, eta*30 + (pct-1)*2 + 1);    
@@ -37,27 +43,56 @@ for eta = 0 : 10
         TRI = delaunay(x,y);
 
         peri = [];
+        unif = 0;
         tri_dim = size(TRI, 1); % Triangular number
         for i = 1 : tri_dim  %calulate the variance of every triangular
             peri = [peri,  (x(TRI(i, 1)) + x(TRI(i, 2))+x(TRI(i, 3)))];
+            sub_peri = x(TRI(i, 1)) + x(TRI(i, 2))+x(TRI(i, 3));
+            sub_unif = std([abs(x(TRI(i, 1))-x(TRI(i, 2))), abs(x(TRI(i, 1))-x(TRI(i, 3))), abs(x(TRI(i, 2))-x(TRI(i, 3)))]);
+            unif = unif + sub_unif;
         end
         
         var = std(peri);
         ratio = (max(x) - min(x)) / (max(y) - min(y));
         eta_var = [eta_var; var];
         eta_ratio = [eta_ratio; ratio];
-       
+        eta_unif = [eta_unif; unif];
+        eta_disp_x = [eta_disp_x; sum(x)/42];
+        eta_disp_y = [eta_disp_y; sum(abs(y))/42];
     end
     
     mat_var = [mat_var, eta_var];
     mat_ratio = [mat_ratio, eta_ratio];
+    mat_unif = [mat_unif, eta_unif];
+    mat_disp_x = [mat_disp_x, eta_disp_x];
+    mat_disp_y = [mat_disp_y, eta_disp_y];
 end
 
-
 figure(1);
-surfc(mat_var);
+subplot(1,3,1); surfc(mat_var);
+subplot(1,3,2); plot(sum(mat_var)./15);
+subplot(1,3,3); plot(mat_var(end,:));
 
 figure(2);
-surfc(mat_ratio);
+subplot(1,3,1); surfc(mat_ratio);
+subplot(1,3,2); plot(sum(mat_ratio)./15);
+subplot(1,3,3); plot(mat_ratio(end,:));
+
+figure(3);
+subplot(1,3,1); surfc(mat_unif);
+subplot(1,3,2); plot(sum(mat_unif)./15);
+subplot(1,3,3); plot(mat_unif(end,:));
+
+figure(4);
+subplot(1,3,1); surfc(mat_disp_x);
+subplot(1,3,2); plot(sum(mat_disp_x)./15);
+subplot(1,3,3); plot(mat_disp_x(end,:));
+
+figure(5);
+subplot(1,3,1); surfc(mat_disp_y);
+subplot(1,3,2); plot(sum(mat_disp_y)./15);
+subplot(1,3,3); plot(mat_disp_y(end,:));
+
+
     
     
