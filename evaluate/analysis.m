@@ -12,12 +12,9 @@ p03 = csvread([data_path, '0.3.csv']);
 p04 = csvread([data_path, '0.4.csv']); 
 p05 = csvread([data_path, '0.5.csv']); 
 p06 = csvread([data_path, '0.6.csv']); 
-p07 = csvread([data_path, '0.7.csv']); 
-p08 = csvread([data_path, '0.8.csv']); 
-p09 = csvread([data_path, '0.9.csv']);
-p10 = csvread([data_path, '1.0.csv']); 
 
-p = [p00, p01, p02, p03, p04, p05, p06, p07, p08, p09, p10];
+now_eta = [1.42, 2.85, 4.27, 5.69, 7.11, 8.53, 9.95];
+p = [p00, p01, p02, p03, p04, p05, p06];
 %% Delaunay triangulate coefficient
 
 dim = size(p00);
@@ -28,7 +25,7 @@ mat_ratio = [];
 mat_unif = [];
 mat_disp_x  = [];
 mat_disp_y = [];
-for eta = 0 : 10
+for eta = 0 : 6
     
     % For every single percenet
     eta_var = [];
@@ -68,31 +65,29 @@ for eta = 0 : 10
     mat_disp_y = [mat_disp_y, eta_disp_y];
 end
 
+% figure(1);
+% subplot(1,3,1); surfc(mat_disp_x);
+% subplot(1,3,2); plot(sum(mat_disp_x)./15);
+% subplot(1,3,3); plot(mat_disp_x(end,:));
+% 
+% figure(2);
+% subplot(1,3,1); surfc(mat_disp_y);
+% subplot(1,3,2); plot(sum(mat_disp_y)./15);
+% subplot(1,3,3); plot(mat_disp_y(end,:));
+
+uni_disp_x = mat_disp_x(end,:) ./ sum(mat_disp_x(end,:));
+uni_disp_y = mat_disp_y(end,:) ./ sum(mat_disp_y(end,:));
+p_x = polyfit(now_eta, uni_disp_x, 2);
+p_y = polyfit(now_eta, uni_disp_y, 2);
+
+x = linspace(1,10,100);
+match_x = p_x(1)*x.*x + p_x(2)*x + p_x(3);
+match_y = p_y(1)*x.*x + p_y(2)*x+ p_y(3);
+
 figure(1);
-subplot(1,3,1); surfc(mat_var);
-subplot(1,3,2); plot(sum(mat_var)./15);
-subplot(1,3,3); plot(mat_var(end,:));
-
-figure(2);
-subplot(1,3,1); surfc(mat_ratio);
-subplot(1,3,2); plot(sum(mat_ratio)./15);
-subplot(1,3,3); plot(mat_ratio(end,:));
-
-figure(3);
-subplot(1,3,1); surfc(mat_unif);
-subplot(1,3,2); plot(sum(mat_unif)./15);
-subplot(1,3,3); plot(mat_unif(end,:));
-
-figure(4);
-subplot(1,3,1); surfc(mat_disp_x);
-subplot(1,3,2); plot(sum(mat_disp_x)./15);
-subplot(1,3,3); plot(mat_disp_x(end,:));
-
-figure(5);
-subplot(1,3,1); surfc(mat_disp_y);
-subplot(1,3,2); plot(sum(mat_disp_y)./15);
-subplot(1,3,3); plot(mat_disp_y(end,:));
-
-
-    
-    
+combine = 4 * match_x .* match_x + match_y .* match_y;
+subplot(1,3,1); plot(x, match_x);
+subplot(1,3,2); plot(x, match_y);
+subplot(1,3,3); plot(x, combine);
+min = x(find(combine == min(combine)))
+     
