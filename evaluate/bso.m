@@ -1,4 +1,4 @@
-  /function best_fitness = bso(fun,n_p,n_d,n_c,rang_l,rang_r,max_iteration)
+function now_ans = bso(fun,n_p,n_d,n_c,rang_l,rang_r,max_iteration)
 % fun = fitness_function
 % n_p; population size
 % n_d; number of dimension
@@ -30,6 +30,9 @@ fitness_popu_sorted = 1000000*ones(n_p,1);  % store  fitness value for each sort
 
 indi_temp = zeros(1,n_d);  % store temperary individual
 
+ans_space = zeros(n_c, n_d);
+now_ans = zeros(max_iteration, n_d);
+
 % calculate fitness for each individual in the initialized population
 for idx = 1:n_p
     fitness_popu(idx,1) = fun(popu(idx,:));
@@ -50,6 +53,7 @@ while n_iteration < max_iteration
         % find the best individual in each cluster
         if fit_values(cluster(idx,1),1) > fitness_popu(idx,1)  % minimization
             fit_values(cluster(idx,1),1) = fitness_popu(idx,1);
+            ans_space(cluster(idx,1), :) = popu(idx,:);
             best(cluster(idx,1),1) = idx;
         end
             
@@ -63,8 +67,7 @@ while n_iteration < max_iteration
     for idx =2:n_c
         acculate_num_cluster(idx,1) = acculate_num_cluster((idx-1),1) + number_in_cluster((idx-1),1);
     end
-    
-    acculate_num_cluster
+   
     
     %start form sorted population
     for idx = 1:n_p
@@ -150,8 +153,18 @@ while n_iteration < max_iteration
     n_iteration = n_iteration +1;
     
     % record the best fitness in each iteration
-    best_fitness(n_iteration, 1) = min(fit_values);
+    minvalue = 100000000000000000000000000.0;
+    for idx = 1:n_c
+        if fit_values(idx) < minvalue
+            minvalue = fit_values(idx);
+            best_fitness(n_iteration, 1) = minvalue;
+            now_ans(n_iteration, :) = ans_space(idx, :);
+        end
+    end
+    %best_fitness
+    %test = unicoef(now_ans)
 end
+
 
 
     
