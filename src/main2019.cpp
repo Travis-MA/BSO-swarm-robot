@@ -12,14 +12,18 @@
 #include <ctime>
 #include <math.h>
 #include <float.h>
+#include <iostream>
+#include <fstream>
+#include <cassert>
+#include <string>
 //#include <values.h>
 
 // A couple of constants
-#define W_MIN -45 // Minimum of W, W is turning speed
-#define W_MAX 45 // Maximum of W
+#define W_MIN -30 // Minimum of W, W is turning speed
+#define W_MAX 30 // Maximum of W
 #define X_MIN 0.1 // Minimum of X, X is running speed
-#define X_MAX 1   // Maximum of X
-#define W_SAMPLE_GRAIN 1 // Sample size of W
+#define X_MAX 2   // Maximum of X
+#define W_SAMPLE_GRAIN 5 // Sample size of W
 #define X_SAMPLE_GRAIN 0.1 // Sample size of X
 #define ROBOT_R 0.75 // the logic robot Radius 
 #define OBSTACLE_R 0.25 // the logic obstcale Radius
@@ -31,7 +35,8 @@
 #define TIME_GRAIN 0.1  // time interval size
 #define LASER_RANGE 4 // laser probe reach
 #define FLOOR_RANGE 8 // floor side reach
-#define SWARM_SIZE 1 // number of robots
+#define SWARM_SIZE 42 // number of robots
+#define GOAL_AREA 5
 
 // Cartesian coordinates and Eular: yaw pitch roll
 struct location
@@ -45,6 +50,11 @@ using namespace PlayerCc;
 using namespace std;
 // flag to quit the simulation
 int flag = 0; // flag for shut down
+
+
+int relation[42] = {0};
+int goal_list[7][2] = {{10,15},{25,15},{15, -20},{40,20},{20, -30},{30, 0},{40, -10}};
+
 // window 
 double time_window;
 // converting unit
@@ -54,10 +64,71 @@ double degree2radians(double degree){
 double radians2degree(double radian){
       return radian*180.0/M_PI;
 }
-// heading
-double heading_evaluation(double Yaw){
-      return 180-fabs(Yaw);
+
+void reflesh_relation(){
+    std::string file = "relation.txt";
+    std::ifstream infile; 
+    infile.open(file.data());   //将文件流对象与文件连接起来 
+    assert(infile.is_open());   //若失败,则输出错误消息,并终止程序运行 
+
+    char c;
+    int cont = 0;
+    while (!infile.eof())
+    {
+        infile >> c;
+        relation[cont] = (int)c-49;
+        cont++;
+    }
+    infile.close();
 }
+
+double heading_evaluation(double XPos, double YPos, double Yaw, int ID){
+      int goal_id = relation[ID];
+      int *goal = goal_list[goal_id];
+      //printf("Robot ID: %d GoalID: %d Goalx: %d, Goaly: %d\n", ID,goal_id, goal[0], goal[1]);
+      double angle = 0;
+      if(XPos < goal[0] && YPos < goal[1]){
+            angle = radians2degree(atan((goal[1] - YPos)/(goal[0] - XPos)));
+            //printf("case1: %f\n",angle);
+      }else if(XPos > goal[0] && YPos < goal[1]){
+            angle = 180 - radians2degree(atan((goal[1] - YPos)/(XPos - goal[0])));
+            //printf("case2: %f\n",angle);
+      }else if(XPos < goal[0] && YPos > goal[1]){
+            angle = -radians2degree(atan((YPos - goal[1])/(goal[0] - XPos)));
+            //printf("case3: %f\n",angle);
+      }else if(XPos > goal[0] && YPos > goal[1]){
+            angle = radians2degree(atan((YPos - goal[1])/(XPos - goal[0]))) - 180;
+            //printf("case4: %f\n",angle);
+      }else{
+            angle = 0;
+            //printf("case5: %f\n",angle);
+      }
+      
+      double respang = fabs(angle - Yaw);
+      if(respang > 180){
+            respang = 360 - respang;
+      }
+
+      return abs(180 - respang);
+}
+
+bool inarea(double XPos, double YPos, int ID){
+      int goal_id = relation[ID];
+      int *goal = goal_list[goal_id];
+      if(sqrt(pow(XPos - goal[0], 2)+pow(YPos - goal[1], 2)) < GOAL_AREA){
+            return true;
+      }else{
+            return false;
+      }
+}
+// heading
+/*
+double heading_evaluation(double XPos, double YPos, double Yaw){
+      double eva = 180 - fabs(Yaw);
+      //printf("Xpos: %f  Ypos: %f  angle: %f fabsYaw: %f  EVA: %f\n", XPos, YPos, angle, fabs(Yaw), eva);
+      return eva;
+      
+}*/
 // distance
 double dist_evaluation(double traj_end_x, double traj_end_y, RangerProxy &laser, int loc)
 {     double dist = 100;
@@ -120,18 +191,14 @@ vector<robot_loc_t> trajectory_calculation(double X_speed, double W_speed, doubl
 /**
  * determine the anarchism-authoritism  distance away from all neighbors
  **/
-double follow_neighbour(double x_end, double y_end,\
-                        FiducialProxy &neighborFinder, int iD)
-{     double total_dist_to_neighbor = 1.0;
-      for(int i =0; i< neighborFinder.GetCount(); i++){
+double follow_neighbour(double x_end, double y_end, FiducialProxy &neighborFinder)
+{     
+      double total_dist_to_neighbor = 1.0;
+      for(int i =0; i< neighborFinder.GetCount(); i++)
+      {
             double x_dist = neighborFinder.GetFiducialItem(i).pose.px - x_end;
             double y_dist = neighborFinder.GetFiducialItem(i).pose.py - y_end;
-// Assume Hawk is faster than Swan, and Swan is faster than Sparrow, we have:
-//            total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist+y_dist*y_dist*y_dist*y_dist)/abs(x_dist*y_dist); // Hawk Finsler distance
-            if (iD >= SWARM_SIZE/7)
-              total_dist_to_neighbor = total_dist_to_neighbor + sqrt(x_dist*x_dist*x_dist*x_dist+y_dist*y_dist*y_dist*y_dist-x_dist*y_dist*x_dist*y_dist)/2; // Accurate Swan Finsler distance
-            else
- total_dist_to_neighbor = total_dist_to_neighbor + pow(abs(x_dist*x_dist*x_dist-x_dist*x_dist*y_dist+x_dist*y_dist*y_dist-y_dist*y_dist*y_dist),2/3)/(6/3)/2; // Accurate Sparrow Finsler distance
+            total_dist_to_neighbor = total_dist_to_neighbor + sqrt( pow(abs(x_dist), 3) + pow(abs(y_dist), 3) + pow(abs(x_dist), 2) * abs(y_dist) + pow(abs(y_dist), 2) * abs(x_dist)); // Accurate Swan Finsler distance  
       }
       return total_dist_to_neighbor;
 }
@@ -197,14 +264,14 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
                         dists[i][j] = -1;
                   }
                   // heading calculation
-                  headings[i][j] = heading_evaluation(yaw_end);
+                  headings[i][j] = heading_evaluation(p2d.GetXPos(), p2d.GetYPos(), yaw_end, iD);
                   // printf("\nhead end: %f\n", headings[i][j]);
                   total_heading = total_heading + headings[i][j];
                   // velocity calculation
                   velocitys[i][j] = velocity_evaluation(Xs[j]);
                   total_velocity = total_velocity + velocitys[i][j];
                   // fixing the middle man
-                  swarm_behavior_eva[i][j] = follow_neighbour(xx_end, yy_end, neighborFinder, iD)*fmod(iD+3, 6);
+                  swarm_behavior_eva[i][j] = follow_neighbour(xx_end, yy_end, neighborFinder);
                   total_swarm_behavior_eva = total_swarm_behavior_eva + swarm_behavior_eva[i][j];
                    //printf("swarm: %f\n",swarm_behavior_eva[i][j] ); // debug
             }
@@ -237,19 +304,20 @@ int main(int argc, char *argv[])
 {	
       /*need to do this line in c++ only*/
       using namespace PlayerCc;
+      reflesh_relation();
 //===================================INITIALIZATION==================================================//
       PlayerClient    robot0("localhost", 7000);
       Position2dProxy p2dProxy_robot0(&robot0,0);
       RangerProxy      laserProxy_robot0(&robot0,0);
       FiducialProxy neighbor_finderProxy_robot0(&robot0,0);
       //SimulationProxy simProxy_robot0(&robot0,0);
-/*
+
       PlayerClient    robot1("localhost", 7001);
       Position2dProxy p2dProxy_robot1(&robot1,0);
       RangerProxy      laserProxy_robot1(&robot1,0);
       FiducialProxy neighbor_finderProxy_robot1(&robot1,0);
       // SimulationProxy simProxy_robot1(&robot1,0);
-/*
+
       PlayerClient    robot2("localhost", 7002);
       Position2dProxy p2dProxy_robot2(&robot2,0);
       RangerProxy      laserProxy_robot2(&robot2,0);
@@ -477,21 +545,21 @@ int main(int argc, char *argv[])
       Position2dProxy p2dProxy_robot41(&robot41,0);
       RangerProxy      laserProxy_robot41(&robot41,0);
       FiducialProxy neighbor_finderProxy_robot41(&robot41,0);
-*/      
+
       // vector<PlayerClient> plyclnts(5);
       // vector<Position2dProxy> p2dProxys(5);
       // vector<RangerProxy> rngProxys(5);
       // vector<FiducialProxy> fidProxys(5);
       // vector<SimulationProxy> SimProxys(5);
 // spawn off models
-      //PlayerClient plyclnts[SWARM_SIZE] = {robot0, robot1, robot2, robot3, robot4, robot5, robot6, robot7, robot8, robot9, robot10, robot11, robot12, robot13, robot14, robot15, robot16, robot17, robot18, robot19, robot20, robot21, robot22, robot23, robot24, robot25, robot26, robot27, robot28, robot29, robot30, robot31, robot32, robot33, robot34, robot35, robot36, robot37, robot38, robot39, robot40, robot41};
-      PlayerClient plyclnts[SWARM_SIZE] = {robot0};
-      //Position2dProxy p2dProxys[SWARM_SIZE] = {p2dProxy_robot0, p2dProxy_robot1, p2dProxy_robot2, p2dProxy_robot3, p2dProxy_robot4, p2dProxy_robot5, p2dProxy_robot6, p2dProxy_robot7, p2dProxy_robot8, p2dProxy_robot9, p2dProxy_robot10, p2dProxy_robot11, p2dProxy_robot12, p2dProxy_robot13, p2dProxy_robot14, p2dProxy_robot15, p2dProxy_robot16, p2dProxy_robot17, p2dProxy_robot18, p2dProxy_robot19, p2dProxy_robot20, p2dProxy_robot21, p2dProxy_robot22, p2dProxy_robot23, p2dProxy_robot24, p2dProxy_robot25, p2dProxy_robot26, p2dProxy_robot27, p2dProxy_robot28, p2dProxy_robot29, p2dProxy_robot30, p2dProxy_robot31, p2dProxy_robot32, p2dProxy_robot33, p2dProxy_robot34, p2dProxy_robot35, p2dProxy_robot36, p2dProxy_robot37, p2dProxy_robot38, p2dProxy_robot39, p2dProxy_robot40, p2dProxy_robot41};
-      Position2dProxy p2dProxys[SWARM_SIZE] = {p2dProxy_robot0};
-      //RangerProxy rngProxys[SWARM_SIZE] = {laserProxy_robot0, laserProxy_robot1, laserProxy_robot2, laserProxy_robot3, laserProxy_robot4, laserProxy_robot5, laserProxy_robot6, laserProxy_robot7, laserProxy_robot8, laserProxy_robot9, laserProxy_robot10, laserProxy_robot11, laserProxy_robot12, laserProxy_robot13, laserProxy_robot14, laserProxy_robot15, laserProxy_robot16, laserProxy_robot17, laserProxy_robot18, laserProxy_robot19, laserProxy_robot20, laserProxy_robot21, laserProxy_robot22, laserProxy_robot23, laserProxy_robot24, laserProxy_robot25, laserProxy_robot26, laserProxy_robot27, laserProxy_robot28, laserProxy_robot29, laserProxy_robot30, laserProxy_robot31, laserProxy_robot32, laserProxy_robot33, laserProxy_robot34, laserProxy_robot35, laserProxy_robot36, laserProxy_robot37, laserProxy_robot38, laserProxy_robot39, laserProxy_robot40, laserProxy_robot41};
-      RangerProxy rngProxys[SWARM_SIZE] = {laserProxy_robot0};
-      //FiducialProxy fidProxys[SWARM_SIZE] = {neighbor_finderProxy_robot0, neighbor_finderProxy_robot1, neighbor_finderProxy_robot2, neighbor_finderProxy_robot3, neighbor_finderProxy_robot4, neighbor_finderProxy_robot5, neighbor_finderProxy_robot6, neighbor_finderProxy_robot7, neighbor_finderProxy_robot8, neighbor_finderProxy_robot9, neighbor_finderProxy_robot10, neighbor_finderProxy_robot11, neighbor_finderProxy_robot12, neighbor_finderProxy_robot13, neighbor_finderProxy_robot14, neighbor_finderProxy_robot15, neighbor_finderProxy_robot16, neighbor_finderProxy_robot17, neighbor_finderProxy_robot18, neighbor_finderProxy_robot19, neighbor_finderProxy_robot20, neighbor_finderProxy_robot21, neighbor_finderProxy_robot22, neighbor_finderProxy_robot23, neighbor_finderProxy_robot24, neighbor_finderProxy_robot25, neighbor_finderProxy_robot26, neighbor_finderProxy_robot27, neighbor_finderProxy_robot28, neighbor_finderProxy_robot29, neighbor_finderProxy_robot30, neighbor_finderProxy_robot31, neighbor_finderProxy_robot32, neighbor_finderProxy_robot33, neighbor_finderProxy_robot34, neighbor_finderProxy_robot35, neighbor_finderProxy_robot36, neighbor_finderProxy_robot37, neighbor_finderProxy_robot38, neighbor_finderProxy_robot39, neighbor_finderProxy_robot40, neighbor_finderProxy_robot41};
-      FiducialProxy fidProxys[SWARM_SIZE] = {neighbor_finderProxy_robot0};
+      PlayerClient plyclnts[SWARM_SIZE] = {robot0, robot1, robot2, robot3, robot4, robot5, robot6, robot7, robot8, robot9, robot10, robot11, robot12, robot13, robot14, robot15, robot16, robot17, robot18, robot19, robot20, robot21, robot22, robot23, robot24, robot25, robot26, robot27, robot28, robot29, robot30, robot31, robot32, robot33, robot34, robot35, robot36, robot37, robot38, robot39, robot40, robot41};
+      //PlayerClient plyclnts[SWARM_SIZE] = {robot0};
+      Position2dProxy p2dProxys[SWARM_SIZE] = {p2dProxy_robot0, p2dProxy_robot1, p2dProxy_robot2, p2dProxy_robot3, p2dProxy_robot4, p2dProxy_robot5, p2dProxy_robot6, p2dProxy_robot7, p2dProxy_robot8, p2dProxy_robot9, p2dProxy_robot10, p2dProxy_robot11, p2dProxy_robot12, p2dProxy_robot13, p2dProxy_robot14, p2dProxy_robot15, p2dProxy_robot16, p2dProxy_robot17, p2dProxy_robot18, p2dProxy_robot19, p2dProxy_robot20, p2dProxy_robot21, p2dProxy_robot22, p2dProxy_robot23, p2dProxy_robot24, p2dProxy_robot25, p2dProxy_robot26, p2dProxy_robot27, p2dProxy_robot28, p2dProxy_robot29, p2dProxy_robot30, p2dProxy_robot31, p2dProxy_robot32, p2dProxy_robot33, p2dProxy_robot34, p2dProxy_robot35, p2dProxy_robot36, p2dProxy_robot37, p2dProxy_robot38, p2dProxy_robot39, p2dProxy_robot40, p2dProxy_robot41};
+      //Position2dProxy p2dProxys[SWARM_SIZE] = {p2dProxy_robot0};
+      RangerProxy rngProxys[SWARM_SIZE] = {laserProxy_robot0, laserProxy_robot1, laserProxy_robot2, laserProxy_robot3, laserProxy_robot4, laserProxy_robot5, laserProxy_robot6, laserProxy_robot7, laserProxy_robot8, laserProxy_robot9, laserProxy_robot10, laserProxy_robot11, laserProxy_robot12, laserProxy_robot13, laserProxy_robot14, laserProxy_robot15, laserProxy_robot16, laserProxy_robot17, laserProxy_robot18, laserProxy_robot19, laserProxy_robot20, laserProxy_robot21, laserProxy_robot22, laserProxy_robot23, laserProxy_robot24, laserProxy_robot25, laserProxy_robot26, laserProxy_robot27, laserProxy_robot28, laserProxy_robot29, laserProxy_robot30, laserProxy_robot31, laserProxy_robot32, laserProxy_robot33, laserProxy_robot34, laserProxy_robot35, laserProxy_robot36, laserProxy_robot37, laserProxy_robot38, laserProxy_robot39, laserProxy_robot40, laserProxy_robot41};
+      //RangerProxy rngProxys[SWARM_SIZE] = {laserProxy_robot0};
+      FiducialProxy fidProxys[SWARM_SIZE] = {neighbor_finderProxy_robot0, neighbor_finderProxy_robot1, neighbor_finderProxy_robot2, neighbor_finderProxy_robot3, neighbor_finderProxy_robot4, neighbor_finderProxy_robot5, neighbor_finderProxy_robot6, neighbor_finderProxy_robot7, neighbor_finderProxy_robot8, neighbor_finderProxy_robot9, neighbor_finderProxy_robot10, neighbor_finderProxy_robot11, neighbor_finderProxy_robot12, neighbor_finderProxy_robot13, neighbor_finderProxy_robot14, neighbor_finderProxy_robot15, neighbor_finderProxy_robot16, neighbor_finderProxy_robot17, neighbor_finderProxy_robot18, neighbor_finderProxy_robot19, neighbor_finderProxy_robot20, neighbor_finderProxy_robot21, neighbor_finderProxy_robot22, neighbor_finderProxy_robot23, neighbor_finderProxy_robot24, neighbor_finderProxy_robot25, neighbor_finderProxy_robot26, neighbor_finderProxy_robot27, neighbor_finderProxy_robot28, neighbor_finderProxy_robot29, neighbor_finderProxy_robot30, neighbor_finderProxy_robot31, neighbor_finderProxy_robot32, neighbor_finderProxy_robot33, neighbor_finderProxy_robot34, neighbor_finderProxy_robot35, neighbor_finderProxy_robot36, neighbor_finderProxy_robot37, neighbor_finderProxy_robot38, neighbor_finderProxy_robot39, neighbor_finderProxy_robot40, neighbor_finderProxy_robot41};
+      //FiducialProxy fidProxys[SWARM_SIZE] = {neighbor_finderProxy_robot0};
       // SimulationProxy SimProxys[SWARM_SIZE]={simProxy_robot0, simProxy_robot1, simProxy_robot2, simProxy_robot3, simProxy_robot4, simProxy_robot5, simProxy_robot6, simProxy_robot7, simProxy_robot8, simProxy_robot9, simProxy_robot10, simProxy_robot11};
       vector<double> X_speeds(SWARM_SIZE);
       vector<double> W_speeds(SWARM_SIZE);
@@ -519,21 +587,32 @@ int main(int argc, char *argv[])
 	    for(int i = 0;i<SWARM_SIZE;i++){
             // read from the proxies
             // robot.Read();
-            plyclnts[i].Read();
-            vector<int> locs;
-            // Determine obstcales for each robot
-            locs = obstacle_detection(rngProxys[i], &current_min_dist);
-            DynamicWindowApproach(&X_speeds[i], &W_speeds[i], time_window, rngProxys[i], locs, p2dProxys[i], fidProxys[i], i);
-            p2dProxys[i].SetSpeed(X_speeds[i], dtor(W_speeds[i]));
-            // Stop when some at next destination
-            if ( p2dProxys[i].GetXPos()>FLOOR_RANGE*0.1)   
-		flag = flag+1;
-            // To make sure no queue overflow
-            sleep(time_window/SWARM_SIZE);
+            if(inarea(p2dProxys[i].GetXPos(), p2dProxys[i].GetYPos(), i)){
+                  p2dProxys[i].SetSpeed(0, 0);
+            }else{
+                  plyclnts[i].Read();
+                  vector<int> locs;
+                  // Determine obstcales for each robot
+                  locs = obstacle_detection(rngProxys[i], &current_min_dist);
+                  //printf("start DWA\n");
+                  DynamicWindowApproach(&X_speeds[i], &W_speeds[i], time_window, rngProxys[i], locs, p2dProxys[i], fidProxys[i], i);
+                  //double angle = heading_evaluation(p2dProxys[i].GetXPos(), p2dProxys[i].GetYPos(),radians2degree(p2dProxys[i].GetYaw()));
+                  //printf("Yaw: %f  Angle: %f  Xpos: %f   Ypos: %f\n" , radians2degree(p2dProxys[i].GetYaw()), angle, p2dProxys[i].GetXPos(), p2dProxys[i].GetYPos());
+                  p2dProxys[i].SetSpeed(X_speeds[i], dtor(W_speeds[i]));
+                  // Stop when some at next destination
+                  if ( p2dProxys[i].GetXPos()>FLOOR_RANGE*0.1)   
+                  //flag = flag+1;
+
+                  // To make sure no queue overflow
+                  sleep(time_window/SWARM_SIZE);
             }
+         }
             // More than Goldern 61.8% or Pareto 80% next step 10%
-            if (flag > SWARM_SIZE*0.1)
-            break;
+            if (flag > SWARM_SIZE*0.1){
+                  printf("FLAG BREAK\n");
+                  //break;
+            }
+           
             // sleep(time_window/10);
       }
 }

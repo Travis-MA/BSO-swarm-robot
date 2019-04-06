@@ -1,5 +1,5 @@
 function value = ackley(xx)
-    minvalue = 0.8;
+    minvalue = 0.6465;
     
     x = xx-minvalue;
     para1 = x * x';

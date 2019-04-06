@@ -3,7 +3,7 @@ clc;
 
 %% FetchData
 
-data_path = '/home/kurt/桌面/BSO-swarm-robot/simulation/final_test1/bso_0/';
+data_path = '/home/kurt/桌面/BSO-swarm-robot/simulation/final_test1/bso_1/';
 
 p00 = csvread([data_path, '1.csv']); 
 p01 = csvread([data_path, '2.csv']); 
@@ -126,12 +126,7 @@ subplot(1,3,2); plot(x, match_y,'-'); title('Cy');grid on;
 hold on; plot(now_eta, Cy, 'x-'); hold off;
 
 subplot(1,3,3); plot(x, combine); title('Merge');grid on;
-for i  = 1:dimension
-    merge_idx(i)= combine(round(i * 100 / dimension));
-end
 
-mini = x(find(combine == min(combine)))
-min_merge = min(combine)
-merge_idx
+min = x(find(combine == min(combine)))
 now_eta
      
