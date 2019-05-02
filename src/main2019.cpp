@@ -53,8 +53,53 @@ int flag = 0; // flag for shut down
 
 
 int relation[42] = {0};
-int goal_list[7][2] = {{10,15},{25,15},{15, -20},{40,20},{20, -30},{30, 0},{40, -10}};
+int goal_list[5][2] = {{10,15},{25,15},{15, -20},{40,20},{20, -30}};
+double originPos[SWARM_SIZE][2] = {0};
 
+void initOriginPos(){
+      originPos[0][0] = 3.000; originPos[0][1] = -1.843;
+      originPos[1][0] = 3.000; originPos[1][1] = -1.129;
+      originPos[2][0] = 3.000; originPos[2][1] = -0.414;
+      originPos[3][0] = 3.000; originPos[3][1] = 0.300;
+      originPos[4][0] = 3.000; originPos[4][1] = 1.014;
+      originPos[5][0] = 3.000; originPos[5][1] = 1.729;
+      originPos[6][0] = 2.286; originPos[6][1] = -1.843;
+      originPos[7][0] = 2.286; originPos[7][1] = -1.129;
+      originPos[8][0] = 2.286; originPos[8][1] = -0.414;
+      originPos[9][0] = 2.286; originPos[9][1] = 0.300;
+      originPos[10][0] = 2.286; originPos[10][1] = 1.014;
+      originPos[11][0] = 2.286; originPos[11][1] = 1.729;
+      originPos[12][0] = 1.572; originPos[12][1] = -1.843;
+      originPos[13][0] = 1.572; originPos[13][1] = -1.129;
+      originPos[14][0] = 1.572; originPos[14][1] = -0.414;
+      originPos[15][0] = 1.572; originPos[15][1] = 0.300;
+      originPos[16][0] = 1.572; originPos[16][1] = 1.014;
+      originPos[17][0] = 1.572; originPos[17][1] = 1.729;
+      originPos[18][0] = 0.858; originPos[18][1] = -1.843;
+      originPos[19][0] = 0.858; originPos[19][1] = -1.129;
+      originPos[20][0] = 0.858; originPos[20][1] = -0.414;
+      originPos[21][0] = 0.858; originPos[21][1] = 0.300;
+      originPos[22][0] = 0.858; originPos[22][1] = 1.014;
+      originPos[23][0] = 0.858; originPos[23][1] = 1.729;
+      originPos[24][0] = 0.143; originPos[24][1] = -1.843;
+      originPos[25][0] = 0.143; originPos[25][1] = -1.129;
+      originPos[26][0] = 0.143; originPos[26][1] = -0.414;
+      originPos[27][0] = 0.143; originPos[27][1] = 0.300;
+      originPos[28][0] = 0.143; originPos[28][1] = 1.014;
+      originPos[29][0] = 0.143; originPos[29][1] = 1.729;
+      originPos[30][0] = -0.571; originPos[30][1] = -1.843;
+      originPos[31][0] = -0.571; originPos[31][1] = -1.129;
+      originPos[32][0] = -0.571; originPos[32][1] = -0.414;
+      originPos[33][0] = -0.571; originPos[33][1] = 0.300;
+      originPos[34][0] = -0.571; originPos[34][1] = 1.014;
+      originPos[35][0] = -0.571; originPos[35][1] = 1.729;
+      originPos[36][0] = -1.286; originPos[36][1] = -1.843;
+      originPos[37][0] = -1.286; originPos[37][1] = -1.129;
+      originPos[38][0] = -1.286; originPos[38][1] = -0.414;
+      originPos[39][0] = -1.286; originPos[39][1] = 0.300;
+      originPos[40][0] = -1.286; originPos[40][1] = 1.014;
+      originPos[41][0] = -1.286; originPos[41][1] = 1.729;
+}
 // window 
 double time_window;
 // converting unit
@@ -66,7 +111,7 @@ double radians2degree(double radian){
 }
 
 void reflesh_relation(){
-    std::string file = "relation.txt";
+    std::string file = "/home/kurt/桌面/BSO-swarm-robot/evaluate/relation.txt";
     std::ifstream infile; 
     infile.open(file.data());   //将文件流对象与文件连接起来 
     assert(infile.is_open());   //若失败,则输出错误消息,并终止程序运行 
@@ -264,7 +309,7 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
                         dists[i][j] = -1;
                   }
                   // heading calculation
-                  headings[i][j] = heading_evaluation(p2d.GetXPos(), p2d.GetYPos(), yaw_end, iD);
+                  headings[i][j] = heading_evaluation(p2d.GetXPos()+originPos[iD][0], p2d.GetYPos()+originPos[iD][1], yaw_end, iD);
                   // printf("\nhead end: %f\n", headings[i][j]);
                   total_heading = total_heading + headings[i][j];
                   // velocity calculation
@@ -300,251 +345,295 @@ void DynamicWindowApproach(double *X_speed, double *W_speed, double time_window,
       // printf("current W: %f\n", optimal_w_speed);
 
 }
+
+
 int main(int argc, char *argv[])
 {	
       /*need to do this line in c++ only*/
       using namespace PlayerCc;
       reflesh_relation();
+      initOriginPos();
 //===================================INITIALIZATION==================================================//
       PlayerClient    robot0("localhost", 7000);
       Position2dProxy p2dProxy_robot0(&robot0,0);
       RangerProxy      laserProxy_robot0(&robot0,0);
       FiducialProxy neighbor_finderProxy_robot0(&robot0,0);
+
       //SimulationProxy simProxy_robot0(&robot0,0);
 
       PlayerClient    robot1("localhost", 7001);
       Position2dProxy p2dProxy_robot1(&robot1,0);
       RangerProxy      laserProxy_robot1(&robot1,0);
       FiducialProxy neighbor_finderProxy_robot1(&robot1,0);
+
       // SimulationProxy simProxy_robot1(&robot1,0);
 
       PlayerClient    robot2("localhost", 7002);
       Position2dProxy p2dProxy_robot2(&robot2,0);
       RangerProxy      laserProxy_robot2(&robot2,0);
       FiducialProxy neighbor_finderProxy_robot2(&robot2,0);
+
       // SimulationProxy simProxy_robot2(&robot2,0);
 
       PlayerClient    robot3("localhost", 7003);
       Position2dProxy p2dProxy_robot3(&robot3,0);
       RangerProxy      laserProxy_robot3(&robot3,0);
       FiducialProxy neighbor_finderProxy_robot3(&robot3,0);
+
       // SimulationProxy simProxy_robot3(&robot3,0);
 
       PlayerClient    robot4("localhost", 7004);
       Position2dProxy p2dProxy_robot4(&robot4,0);
       RangerProxy      laserProxy_robot4(&robot4,0);
       FiducialProxy neighbor_finderProxy_robot4(&robot4,0);
+
       // SimulationProxy simProxy_robot4(&robot4,0);
 
       PlayerClient    robot5("localhost", 7005);
       Position2dProxy p2dProxy_robot5(&robot5,0);
       RangerProxy      laserProxy_robot5(&robot5,0);
       FiducialProxy neighbor_finderProxy_robot5(&robot5,0);
+
       // SimulationProxy simProxy_robot5(&robot5,0);
 
       PlayerClient    robot6("localhost", 7006);
       Position2dProxy p2dProxy_robot6(&robot6,0);
       RangerProxy      laserProxy_robot6(&robot6,0);
       FiducialProxy neighbor_finderProxy_robot6(&robot6,0);
+
       // SimulationProxy simProxy_robot6(&robot6,0);
 
       PlayerClient    robot7("localhost", 7007);
       Position2dProxy p2dProxy_robot7(&robot7,0);
       RangerProxy      laserProxy_robot7(&robot7,0);
       FiducialProxy neighbor_finderProxy_robot7(&robot7,0);
+
       // SimulationProxy simProxy_robot7(&robot7,0);
 
       PlayerClient    robot8("localhost", 7008);
       Position2dProxy p2dProxy_robot8(&robot8,0);
       RangerProxy      laserProxy_robot8(&robot8,0);
       FiducialProxy neighbor_finderProxy_robot8(&robot8,0);
+
       // SimulationProxy simProxy_robot8(&robot8,0);
 
       PlayerClient    robot9("localhost", 7009);
       Position2dProxy p2dProxy_robot9(&robot9,0);
       RangerProxy      laserProxy_robot9(&robot9,0);
       FiducialProxy neighbor_finderProxy_robot9(&robot9,0);
+
       // SimulationProxy simProxy_robot9(&robot9,0);
 
       PlayerClient    robot10("localhost", 7010);
       Position2dProxy p2dProxy_robot10(&robot10,0);
       RangerProxy      laserProxy_robot10(&robot10,0);
       FiducialProxy neighbor_finderProxy_robot10(&robot10,0);
+
       // SimulationProxy simProxy_robot10(&robot10,0);
 
       PlayerClient    robot11("localhost", 7011);
       Position2dProxy p2dProxy_robot11(&robot11,0);
       RangerProxy      laserProxy_robot11(&robot11,0);
       FiducialProxy neighbor_finderProxy_robot11(&robot11,0);
+
       // SimulationProxy simProxy_robot11(&robot11,0);
 
       PlayerClient    robot12("localhost", 7012);
       Position2dProxy p2dProxy_robot12(&robot12,0);
       RangerProxy      laserProxy_robot12(&robot12,0);
       FiducialProxy neighbor_finderProxy_robot12(&robot12,0);
+
       // SimulationProxy simProxy_robot2(&robot2,0);
 
       PlayerClient    robot13("localhost", 7013);
       Position2dProxy p2dProxy_robot13(&robot13,0);
       RangerProxy      laserProxy_robot13(&robot13,0);
       FiducialProxy neighbor_finderProxy_robot13(&robot13,0);
+
       // SimulationProxy simProxy_robot3(&robot3,0);
 
       PlayerClient    robot14("localhost", 7014);
       Position2dProxy p2dProxy_robot14(&robot14,0);
       RangerProxy      laserProxy_robot14(&robot14,0);
       FiducialProxy neighbor_finderProxy_robot14(&robot14,0);
+
       // SimulationProxy simProxy_robot4(&robot4,0);
 
       PlayerClient    robot15("localhost", 7015);
       Position2dProxy p2dProxy_robot15(&robot15,0);
       RangerProxy      laserProxy_robot15(&robot15,0);
       FiducialProxy neighbor_finderProxy_robot15(&robot15,0);
+
       // SimulationProxy simProxy_robot5(&robot5,0);
 
       PlayerClient    robot16("localhost", 7016);
       Position2dProxy p2dProxy_robot16(&robot16,0);
       RangerProxy      laserProxy_robot16(&robot16,0);
       FiducialProxy neighbor_finderProxy_robot16(&robot16,0);
+
       // SimulationProxy simProxy_robot6(&robot6,0);
 
       PlayerClient    robot17("localhost", 7017);
       Position2dProxy p2dProxy_robot17(&robot17,0);
       RangerProxy      laserProxy_robot17(&robot17,0);
       FiducialProxy neighbor_finderProxy_robot17(&robot17,0);
+
       // SimulationProxy simProxy_robot7(&robot7,0);
 
       PlayerClient    robot18("localhost", 7018);
       Position2dProxy p2dProxy_robot18(&robot18,0);
       RangerProxy      laserProxy_robot18(&robot18,0);
       FiducialProxy neighbor_finderProxy_robot18(&robot18,0);
+
       // SimulationProxy simProxy_robot8(&robot8,0);
 
       PlayerClient    robot19("localhost", 7019);
       Position2dProxy p2dProxy_robot19(&robot19,0);
       RangerProxy      laserProxy_robot19(&robot19,0);
       FiducialProxy neighbor_finderProxy_robot19(&robot19,0);
+
       // SimulationProxy simProxy_robot9(&robot9,0);
 
       PlayerClient    robot20("localhost", 7020);
       Position2dProxy p2dProxy_robot20(&robot20,0);
       RangerProxy      laserProxy_robot20(&robot20,0);
       FiducialProxy neighbor_finderProxy_robot20(&robot20,0);
+
       // SimulationProxy simProxy_robot10(&robot10,0);
 
       PlayerClient    robot21("localhost", 7021);
       Position2dProxy p2dProxy_robot21(&robot21,0);
       RangerProxy      laserProxy_robot21(&robot21,0);
       FiducialProxy neighbor_finderProxy_robot21(&robot21,0);
+
       // SimulationProxy simProxy_robot11(&robot11,0);
 
       PlayerClient    robot22("localhost", 7022);
       Position2dProxy p2dProxy_robot22(&robot22,0);
       RangerProxy      laserProxy_robot22(&robot22,0);
       FiducialProxy neighbor_finderProxy_robot22(&robot22,0);
+
       // SimulationProxy simProxy_robot2(&robot2,0);
 
       PlayerClient    robot23("localhost", 7023);
       Position2dProxy p2dProxy_robot23(&robot23,0);
       RangerProxy      laserProxy_robot23(&robot23,0);
       FiducialProxy neighbor_finderProxy_robot23(&robot23,0);
+
       // SimulationProxy simProxy_robot3(&robot3,0);
 
       PlayerClient    robot24("localhost", 7024);
       Position2dProxy p2dProxy_robot24(&robot24,0);
       RangerProxy      laserProxy_robot24(&robot24,0);
       FiducialProxy neighbor_finderProxy_robot24(&robot24,0);
+
       // SimulationProxy simProxy_robot4(&robot4,0);
 
       PlayerClient    robot25("localhost", 7025);
       Position2dProxy p2dProxy_robot25(&robot25,0);
       RangerProxy      laserProxy_robot25(&robot25,0);
       FiducialProxy neighbor_finderProxy_robot25(&robot25,0);
+
       // SimulationProxy simProxy_robot5(&robot5,0);
 
       PlayerClient    robot26("localhost", 7026);
       Position2dProxy p2dProxy_robot26(&robot26,0);
       RangerProxy      laserProxy_robot26(&robot26,0);
       FiducialProxy neighbor_finderProxy_robot26(&robot26,0);
+
       // SimulationProxy simProxy_robot6(&robot6,0);
 
       PlayerClient    robot27("localhost", 7027);
       Position2dProxy p2dProxy_robot27(&robot27,0);
       RangerProxy      laserProxy_robot27(&robot27,0);
       FiducialProxy neighbor_finderProxy_robot27(&robot27,0);
+
       // SimulationProxy simProxy_robot7(&robot7,0);
 
       PlayerClient    robot28("localhost", 7028);
       Position2dProxy p2dProxy_robot28(&robot28,0);
       RangerProxy      laserProxy_robot28(&robot28,0);
       FiducialProxy neighbor_finderProxy_robot28(&robot28,0);
+
       // SimulationProxy simProxy_robot8(&robot8,0);
 
       PlayerClient    robot29("localhost", 7029);
       Position2dProxy p2dProxy_robot29(&robot29,0);
       RangerProxy      laserProxy_robot29(&robot29,0);
       FiducialProxy neighbor_finderProxy_robot29(&robot29,0);
+
       // SimulationProxy simProxy_robot9(&robot9,0);
 
       PlayerClient    robot30("localhost", 7030);
       Position2dProxy p2dProxy_robot30(&robot30,0);
       RangerProxy      laserProxy_robot30(&robot30,0);
       FiducialProxy neighbor_finderProxy_robot30(&robot30,0);
+
       
-	  PlayerClient    robot31("localhost", 7031);
+	PlayerClient    robot31("localhost", 7031);
       Position2dProxy p2dProxy_robot31(&robot31,0);
       RangerProxy      laserProxy_robot31(&robot31,0);
       FiducialProxy neighbor_finderProxy_robot31(&robot31,0);
-     
-	  PlayerClient    robot32("localhost", 7032);
+
+	PlayerClient    robot32("localhost", 7032);
       Position2dProxy p2dProxy_robot32(&robot32,0);
       RangerProxy      laserProxy_robot32(&robot32,0);
       FiducialProxy neighbor_finderProxy_robot32(&robot32,0);
+
       
-	  PlayerClient    robot33("localhost", 7033);
+	PlayerClient    robot33("localhost", 7033);
       Position2dProxy p2dProxy_robot33(&robot33,0);
       RangerProxy      laserProxy_robot33(&robot33,0);
       FiducialProxy neighbor_finderProxy_robot33(&robot33,0);
+
      
-	  PlayerClient    robot34("localhost", 7034);
+	PlayerClient    robot34("localhost", 7034);
       Position2dProxy p2dProxy_robot34(&robot34,0);
       RangerProxy      laserProxy_robot34(&robot34,0);
       FiducialProxy neighbor_finderProxy_robot34(&robot34,0);
+
      
-	  PlayerClient    robot35("localhost", 7035);
+	PlayerClient    robot35("localhost", 7035);
       Position2dProxy p2dProxy_robot35(&robot35,0);
       RangerProxy      laserProxy_robot35(&robot35,0);
       FiducialProxy neighbor_finderProxy_robot35(&robot35,0);
+
      
-	  PlayerClient    robot36("localhost", 7036);
+	PlayerClient    robot36("localhost", 7036);
       Position2dProxy p2dProxy_robot36(&robot36,0);
       RangerProxy      laserProxy_robot36(&robot36,0);
       FiducialProxy neighbor_finderProxy_robot36(&robot36,0);
+
       
-	  PlayerClient    robot37("localhost", 7037);
+	PlayerClient    robot37("localhost", 7037);
       Position2dProxy p2dProxy_robot37(&robot37,0);
       RangerProxy      laserProxy_robot37(&robot37,0);
       FiducialProxy neighbor_finderProxy_robot37(&robot37,0);
+
       
-	  PlayerClient    robot38("localhost", 7038);
+	PlayerClient    robot38("localhost", 7038);
       Position2dProxy p2dProxy_robot38(&robot38,0);
       RangerProxy      laserProxy_robot38(&robot38,0);
       FiducialProxy neighbor_finderProxy_robot38(&robot38,0);
+
      
-	  PlayerClient    robot39("localhost", 7039);
+	PlayerClient    robot39("localhost", 7039);
       Position2dProxy p2dProxy_robot39(&robot39,0);
       RangerProxy      laserProxy_robot39(&robot39,0);
       FiducialProxy neighbor_finderProxy_robot39(&robot39,0);
+
      
-	  PlayerClient    robot40("localhost", 7040);
+	PlayerClient    robot40("localhost", 7040);
       Position2dProxy p2dProxy_robot40(&robot40,0);
       RangerProxy      laserProxy_robot40(&robot40,0);
       FiducialProxy neighbor_finderProxy_robot40(&robot40,0);
+
      
-	  PlayerClient    robot41("localhost", 7041);
+	PlayerClient    robot41("localhost", 7041);
       Position2dProxy p2dProxy_robot41(&robot41,0);
       RangerProxy      laserProxy_robot41(&robot41,0);
       FiducialProxy neighbor_finderProxy_robot41(&robot41,0);
+
 
       // vector<PlayerClient> plyclnts(5);
       // vector<Position2dProxy> p2dProxys(5);
@@ -601,16 +690,28 @@ int main(int argc, char *argv[])
                   p2dProxys[i].SetSpeed(X_speeds[i], dtor(W_speeds[i]));
                   // Stop when some at next destination
                   if ( p2dProxys[i].GetXPos()>FLOOR_RANGE*0.1)   
-                  //flag = flag+1;
+                  flag = flag+1;
 
                   // To make sure no queue overflow
                   sleep(time_window/SWARM_SIZE);
             }
          }
             // More than Goldern 61.8% or Pareto 80% next step 10%
-            if (flag > SWARM_SIZE*0.1){
-                  printf("FLAG BREAK\n");
-                  //break;
+            if (flag > SWARM_SIZE * 0.5)
+            {             
+                  ofstream outFile;
+	            outFile.open("/home/kurt/桌面/BSO-swarm-robot/evaluate/reach.csv", ios::out);
+                  cout << "Break v1.3 19-4-6: " << endl;
+                  for(int i = 0;i<SWARM_SIZE;i++){
+                        plyclnts[i].Read();
+                        //p2dProxys[i].SetSpeed(0,0);
+                        double delta_x = p2dProxys[i].GetXPos();
+                        double delta_y = p2dProxys[i].GetYPos();
+                        double x = originPos[i][0] + delta_x;
+                        double y = originPos[i][1] + delta_y;
+                        cout << "id: " << i << " x :" << x << " y: " << y <<endl;  
+                        outFile << x << ',' << y << endl;   
+                  }
             }
            
             // sleep(time_window/10);
